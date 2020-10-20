@@ -1280,12 +1280,7 @@ export class VideoEventTracker extends EventTracker {
   add(context, eventType, config, listener) {
     const videoSpec = config['videoSpec'] || {};
     const selector = config['selector'] || videoSpec['selector'];
-    const selectionMethod = config['selectionMethod'] || null;
-    const targetReady = this.root.getElement(
-      context,
-      selector,
-      selectionMethod
-    );
+    const targetReady = this.root.getElementsByQuerySelectorAll_([selector]);
 
     const endSessionWhenInvisible = videoSpec['end-session-when-invisible'];
     const excludeAutoplay = videoSpec['exclude-autoplay'];
@@ -1379,8 +1374,10 @@ export class VideoEventTracker extends EventTracker {
         event.target,
         'No target specified by video session event.'
       );
-      targetReady.then((target) => {
-        if (!target.contains(el)) {
+      targetReady.then((targets) => {
+        // Find target in the selected video players..
+        let target = targets.filter((t) => t.contains(el))[0];
+        if (!target) {
           return;
         }
         const normalizedDetails = removeInternalVars(details);
